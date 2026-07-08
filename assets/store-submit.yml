@@ -1,0 +1,59 @@
+name: store-submit
+
+# Manually push a released MSIX to the Microsoft Store via the msstore CLI
+# (Store submission API). Deliberately workflow_dispatch — Store submission is
+# an intentional act, never automatic on every beta tag.
+#
+# Prerequisites (all satisfied 2026-07-08, see docs/decisions.md):
+#   - Secrets MSSTORE_TENANT_ID / MSSTORE_CLIENT_ID / MSSTORE_CLIENT_SECRET
+#   - Repo variable STORE_SELLER_ID
+#   - pulsar-store-ci linked in Partner Center as Manager(Windows)
+#   - Store account verified
+# Auth proven by the store-auth-check workflow (msstore apps list -> 9P26FDCWV1GC).
+#
+# NOTE: `msstore publish` uploads the package and drives a submission. The
+# listing metadata + screenshots must exist on the product (filled once,
+# manually or via an init.json) for certification to pass.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag whose MSIX to submit (e.g. v0.3.0-beta.16)"
+        required: true
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install msstore CLI + a Linux secret service
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsecret-1-0 gnome-keyring dbus-x11
+          curl -sL https://github.com/microsoft/msstore-cli/releases/latest/download/MSStoreCLI-linux-x64.tar.gz | tar xz
+          chmod +x msstore
+      - name: Download the MSIX from the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p pkg
+          gh release download "${{ inputs.tag }}" --repo relux-works/barycenter \
+            --pattern 'Pulsar-*-win.msix' --dir pkg
+      - name: Configure + submit
+        env:
+          TENANT: ${{ secrets.MSSTORE_TENANT_ID }}
+          CLIENT: ${{ secrets.MSSTORE_CLIENT_ID }}
+          SECRET: ${{ secrets.MSSTORE_CLIENT_SECRET }}
+          SELLER: ${{ vars.STORE_SELLER_ID }}
+        run: |
+          # msstore stores credentials via libsecret, which needs a running
+          # freedesktop secret service — provide one with an unlocked keyring
+          # inside a private dbus session (same as store-auth-check).
+          dbus-run-session -- bash -euxc '
+            echo "" | gnome-keyring-daemon --unlock --components=secrets
+            ./msstore reconfigure --tenantId "$TENANT" --clientId "$CLIENT" --clientSecret "$SECRET" --sellerId "$SELLER"
+            # pathOrUrl = the .msix path; msstore matches the reserved product
+            # by the package identity (ReluxWorksLLC.PulsarBarycenter).
+            MSIX=$(ls pkg/Pulsar-*-win.msix | head -1)
+            ./msstore publish "$MSIX"
+          '
