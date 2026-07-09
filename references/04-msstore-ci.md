@@ -81,9 +81,34 @@ usable. See `assets/store-auth-check.yml` for the full workflow.
 
 ```bash
 MSIX=$(ls pkg/Pulsar-*-win.msix | head -1)
-./msstore publish "$MSIX"     # matches the product by package identity
+./msstore publish "$MSIX" --appId 9P26FDCWV1GC
 ```
 
-`--id` is **not** a valid flag (prints help). Passing a bare product ID as the
-positional arg fails ("not a path or URL"). Pass the **.msix path**; msstore
-matches the reserved product by the package's identity.
+**`--appId <ProductId>` is required in CI.** Without it the CLI looks for a
+LOCAL "initialized project" (state written by `msstore init` next to a
+project) and dies with `Failed to find the AppId` — even for a published
+app. It does **not** resolve the product from the MSIX package identity
+(a day was lost to that wrong theory). Notes:
+
+- The short alias is `-id` (SINGLE dash). `--id` does not exist and prints
+  help — a second red herring.
+- The positional arg is the **.msix path**; a bare product ID fails
+  ("not a path or URL").
+- `./msstore submission status <ProductId>` is a cheap read-only probe for
+  "where is my certification" — handy in an auth-check workflow.
+
+## Partner Center API flakiness (504s are routine)
+
+The DevCenter v1.0 API regularly times out behind Azure Front Door: GETs and
+submission creation can hang ~80 s and come back **504**. Two consequences:
+
+1. **Retry the run.** A 504 on `GET /my/applications/<id>` or on submission
+   creation is transient — the next dispatch usually goes through.
+2. **A red run does not mean a failed submission.** After `Submission
+   Committed` the CLI keeps polling status; if a POLL dies on a 504 the
+   process exits non-zero while the submission is already committed
+   server-side and proceeds to certification regardless. Verify with
+   `msstore submission status` instead of resubmitting. The workflow in
+   `assets/store-submit.yml` automates exactly this: on a non-zero publish
+   exit it checks the submission status and greens the run when the status is
+  CommitStarted/PreProcessing/Certification/....

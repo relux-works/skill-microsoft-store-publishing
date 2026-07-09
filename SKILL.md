@@ -62,12 +62,23 @@ Read the reference that matches your step; each is short and battle-tested.
    ("revision number other than zero"); use `0.3.15.0`. And Name/Publisher
    must match the Store-assigned identity byte-for-byte (§05).
 
-5. **The FIRST submission cannot be done by the CLI.** `msstore publish`
-   fails "Failed to find the AppId" because the package identity only
-   registers after the first submission. Do submission #1 in the Partner
-   Center UI (package + listing + ≥1 screenshot); the CLI automates every
-   update after (§06). Bonus: cert runs your app on a real Windows VM — a free
-   smoke test for a blind-built Windows app.
+5. **`msstore publish` needs `--appId <ProductId>` in CI.** Without it the
+   CLI looks for a LOCAL "initialized project" (`msstore init` state) and
+   dies with "Failed to find the AppId" — it does NOT resolve the app from
+   the MSIX package identity, and the alias is `-id` (single dash; `--id`
+   does not exist). The FIRST submission still belongs in the Partner Center
+   UI — certification requires listing + ≥1 screenshot + age ratings +
+   pricing, which publish does not create (§06). Every update after is fully
+   automated; a pending submission is auto-superseded once the app has a
+   published version (§06). Bonus: cert runs your app on a real Windows VM —
+   a free smoke test for a blind-built Windows app.
+
+6. **Partner Center API 504s are routine.** The DevCenter v1.0 API times out
+   through Azure Front Door (~80 s waits) on GETs, submission creation and
+   the post-commit status polls. Retry the run; and treat "publish exited
+   non-zero AFTER 'Submission Committed'" as a status-poll casualty, not a
+   failed submission — verify with `msstore submission status <ProductId>`
+   (§04, and the hardened `assets/store-submit.yml`).
 
 ## Assets
 

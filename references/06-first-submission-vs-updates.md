@@ -1,22 +1,30 @@
 # First submission vs updates
 
-**The first submission cannot be automated by the msstore CLI.** Do it once in
-the Partner Center UI; automate every update after.
+**Do the first submission once in the Partner Center UI; automate every
+update after.**
 
-## Why the CLI can't do submission #1
+## Why submission #1 is manual (corrected 2026-07-09)
 
-`msstore publish path/to.msix` fails with:
+An earlier version of this document blamed `Failed to find the AppId` on the
+package identity "not being registered until the first submission commits".
+**That theory was wrong.** The error simply means `--appId` was not passed:
+`msstore publish` looks for a LOCAL "initialized project" (`msstore init`
+state), never for the MSIX package identity — it fails identically for a
+published app (verified live, update #1 of a published product).
 
+```bash
+./msstore publish path/to.msix --appId <ProductId>   # works pre- and post-#1
 ```
-Unhandled exception: MSStore.API.MSStoreException: Failed to find the AppId.
-```
 
-msstore resolves the target app by the **package identity** (e.g.
-`ReluxWorksLLC.PulsarBarycenter`). That identity is only **registered on the
-Store after the first submission commits**. So the very first publish is a
-bootstrap chicken-and-egg: the CLI can't find the app by an identity the Store
-doesn't know yet. (`msstore apps list` shows the app — but publish's identity
-lookup still fails pre-first-submission.)
+The real reason to do submission #1 in the UI is **certification content**:
+the commit is validated against listing (description + ≥1 screenshot), age
+ratings, properties and pricing — none of which `publish` creates. Filling
+those once in Partner Center takes ~10 min; after that the CLI owns packages.
+
+One more first-submission trap: if a DRAFT submission was created in the
+Partner Center UI and left pending, the CLI cannot upload into it — it errors
+"can't upload the packages for submissions created in Partner Center. Please,
+delete it and try again." Delete the UI draft, let the CLI create its own.
 
 ## The first submission (manual, ~10 min)
 
@@ -46,13 +54,24 @@ Cert takes a few hours, up to 3 business days.
 
 ## Updates (automated)
 
-Once submission #1 is committed, the package identity is registered and the
-CLI works. Use a **manual-trigger** workflow (never auto on every tag — you
-don't want betas publishing publicly):
+Use a **manual-trigger** workflow (never auto on every tag — you don't want
+betas publishing publicly):
 
 ```bash
 MSIX=$(ls pkg/Pulsar-*-win.msix | head -1)
-./msstore publish "$MSIX"     # inside dbus-run-session, see 04
+./msstore publish "$MSIX" --appId <ProductId>   # inside dbus-run-session, see 04
 ```
+
+**Supersede semantics (verified live):** if the app already has a published
+version AND a pending submission exists (e.g. a previous beta still in
+certification), `publish` **deletes the pending submission and creates a
+fresh one** — shipping a newer build over an in-cert one is a single command,
+no Partner Center visit. Only a pending FIRST submission (nothing published
+yet) is reused instead of deleted — and only if the CLI created it.
+
+**Expect Partner Center 504s** during upload/commit/status-poll — see §04 for
+why a red run can still be a committed submission and how
+`assets/store-submit.yml` verifies via `msstore submission status` before
+declaring failure.
 
 See `assets/store-submit.yml`.
