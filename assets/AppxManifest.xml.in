@@ -16,16 +16,18 @@
   xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
   IgnorableNamespaces="uap uap10">
 
-  <!-- Identity assigned by the Microsoft Store (Product ID 9P26FDCWV1GC).
+  <!-- Identity assigned by the Microsoft Store (Partner Center -> Product
+       identity). Replace ALL placeholder values below with YOUR app's exact
+       Store-assigned strings — they must match byte-for-byte.
        Name/Publisher MUST match exactly or the Store rejects the upload. -->
   <Identity
-    Name="ReluxWorksLLC.PulsarBarycenter"
+    Name="CompanyLLC.YourApp"
     Publisher="CN=60105954-A0D9-4E89-B32D-18AF2F423ABE"
     Version="@VERSION@"
     ProcessorArchitecture="x64" />
 
   <Properties>
-    <DisplayName>Pulsar Barycenter</DisplayName>
+    <DisplayName>Your App</DisplayName>
     <PublisherDisplayName>Relux Works, LLC</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
     <Description>Общий музыкальный эфир для нескольких домов.</Description>
@@ -41,12 +43,12 @@
   </Resources>
 
   <Applications>
-    <Application Id="Pulsar"
+    <Application Id="YourApp"
       Executable="pulsar-win-amd64.exe"
       uap10:TrustLevel="appContainer"
       uap10:RuntimeBehavior="packagedClassicApp">
       <uap:VisualElements
-        DisplayName="Pulsar"
+        DisplayName="Your App"
         Description="Общий музыкальный эфир для нескольких домов."
         BackgroundColor="#12103a"
         Square150x150Logo="Assets\Square150x150Logo.png"

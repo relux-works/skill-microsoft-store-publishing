@@ -58,7 +58,7 @@ Use a **manual-trigger** workflow (never auto on every tag — you don't want
 betas publishing publicly):
 
 ```bash
-MSIX=$(ls pkg/Pulsar-*-win.msix | head -1)
+MSIX=$(ls pkg/*.msix | head -1)
 ./msstore publish "$MSIX" --appId <ProductId>   # inside dbus-run-session, see 04
 ```
 

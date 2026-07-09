@@ -9,7 +9,9 @@ name: store-submit
 #   - Repo variable STORE_SELLER_ID
 #   - pulsar-store-ci linked in Partner Center as Manager(Windows)
 #   - Store account verified
-# Auth proven by the store-auth-check workflow (msstore apps list -> 9P26FDCWV1GC).
+# Auth proven by the store-auth-check workflow (msstore apps list shows your app).
+# Setup: secrets MSSTORE_TENANT_ID/MSSTORE_CLIENT_ID/MSSTORE_CLIENT_SECRET,
+# repo variables STORE_SELLER_ID and STORE_APP_ID (the Store ProductId).
 #
 # NOTE: `msstore publish` uploads the package and drives a submission. The
 # listing metadata + screenshots must exist on the product (filled once,
@@ -37,14 +39,15 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p pkg
-          gh release download "${{ inputs.tag }}" --repo relux-works/barycenter \
-            --pattern 'Pulsar-*-win.msix' --dir pkg
+          gh release download "${{ inputs.tag }}" --repo "${{ github.repository }}" \
+            --pattern '*.msix' --dir pkg
       - name: Configure + submit
         env:
           TENANT: ${{ secrets.MSSTORE_TENANT_ID }}
           CLIENT: ${{ secrets.MSSTORE_CLIENT_ID }}
           SECRET: ${{ secrets.MSSTORE_CLIENT_SECRET }}
           SELLER: ${{ vars.STORE_SELLER_ID }}
+          APP_ID: ${{ vars.STORE_APP_ID }}
         run: |
           # msstore stores credentials via libsecret, which needs a running
           # freedesktop secret service — provide one with an unlocked keyring
@@ -57,11 +60,11 @@ jobs:
             # "Failed to find the AppId" — it does NOT match by the package
             # identity inside the MSIX. (The alias is -id with a single dash;
             # --id does not exist — first-submit debugging tripped on that.)
-            # 9P26FDCWV1GC = Pulsar Barycenter Store ID, stable for the
-            # product lifetime (apps.microsoft.com/detail/9P26FDCWV1GC).
-            MSIX=$(ls pkg/Pulsar-*-win.msix | head -1)
+            # APP_ID = your Store ProductId (apps.microsoft.com/detail/<it>),
+            # stable for the product lifetime; set the STORE_APP_ID repo var.
+            MSIX=$(ls pkg/*.msix | head -1)
             set +e
-            ./msstore publish "$MSIX" --appId 9P26FDCWV1GC --verbose
+            ./msstore publish "$MSIX" --appId "$APP_ID" --verbose
             rc=$?
             if [ $rc -ne 0 ]; then
               # Partner Center 504s are routine. If the failure hit AFTER the
@@ -69,7 +72,7 @@ jobs:
               # submission is already in certification server-side — verify by
               # status instead of reporting a false failure.
               for i in 1 2 3; do
-                out=$(./msstore submission status 9P26FDCWV1GC 2>&1) && break
+                out=$(./msstore submission status "$APP_ID" 2>&1) && break
                 sleep 20
               done
               echo "$out"

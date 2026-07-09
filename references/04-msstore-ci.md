@@ -71,7 +71,7 @@ Both the reconfigure and the command that follows must run **inside the same
 
 ```
 │ ProductId    │ Display Name      │ PackageId                      │
-│ 9P26FDCWV1GC │ Pulsar Barycenter │ ReluxWorksLLC.PulsarBarycenter │
+│ 9XXXXXXXXXXX │ Your App          │ CompanyLLC.YourApp             │
 ```
 
 If it does, the Azure AD app is correctly linked as Manager and the API is
@@ -80,8 +80,8 @@ usable. See `assets/store-auth-check.yml` for the full workflow.
 ## Publish syntax (updates only — see 06 for the first-submission caveat)
 
 ```bash
-MSIX=$(ls pkg/Pulsar-*-win.msix | head -1)
-./msstore publish "$MSIX" --appId 9P26FDCWV1GC
+MSIX=$(ls pkg/*.msix | head -1)
+./msstore publish "$MSIX" --appId <ProductId>
 ```
 
 **`--appId <ProductId>` is required in CI.** Without it the CLI looks for a

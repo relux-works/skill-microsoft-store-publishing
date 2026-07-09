@@ -47,8 +47,8 @@ Read the reference that matches your step; each is short and battle-tested.
    first (§02).
 
 2. **The association login is NOT your email.** Entra wants the tenant's
-   global-admin UPN on `*.onmicrosoft.com` (e.g. `ivan@adminrelux.onmicrosoft.com`),
-   not `admin@relux.works`. "relux.works isn't in our system" = your custom
+   global-admin UPN on `*.onmicrosoft.com` (e.g. `admin@contoso.onmicrosoft.com`),
+   not `admin@contoso.com`. "contoso.com isn't in our system" = your custom
    domain isn't verified in Entra; use the `.onmicrosoft.com` UPN (find it in
    entra.microsoft.com → Users) (§02).
 

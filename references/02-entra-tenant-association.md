@@ -36,15 +36,15 @@ Account settings → **Tenants** (Organization profile → Tenants). The
 
 ## The critical gotcha: which login
 
-Your Partner Center **sign-up email** (e.g. `admin@relux.works`) is a
+Your Partner Center **sign-up email** (e.g. `admin@contoso.com`) is a
 **Microsoft Account (MSA)**. The **Entra tenant** is a separate directory
-(e.g. `adminrelux.onmicrosoft.com`) whose users have UPNs on the
+(e.g. `contoso.onmicrosoft.com`) whose users have UPNs on the
 `.onmicrosoft.com` domain.
 
-- Typing `admin@relux.works` gives **"relux.works isn't in our system. Make
-  sure you typed it correctly."** — because `relux.works` is not a *verified
+- Typing `admin@contoso.com` gives **"contoso.com isn't in our system. Make
+  sure you typed it correctly."** — because `contoso.com` is not a *verified
   domain* in the Entra tenant; it's only your MSA email.
-- Use the tenant's global-admin UPN, e.g. **`ivan@adminrelux.onmicrosoft.com`**.
+- Use the tenant's global-admin UPN, e.g. **`admin@contoso.onmicrosoft.com`**.
 
 Find the exact UPN: [entra.microsoft.com](https://entra.microsoft.com) →
 **Users → All users** → open the admin user → **User principal name**. Reset

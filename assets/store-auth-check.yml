@@ -2,7 +2,7 @@ name: store-auth-check
 
 # One-shot verification that the Store submission API credentials work:
 # reconfigure msstore with the service-principal secrets and list the account's
-# apps. If it prints "Pulsar Barycenter" / product 9P26FDCWV1GC, the Azure AD
+# apps. If it prints your app's name and ProductId, the Azure AD
 # app is correctly linked in Partner Center and the API is usable. Publishes
 # nothing.
 
@@ -36,5 +36,5 @@ jobs:
             echo "--- apps ---"
             ./msstore apps list
             echo "--- current submission status (read-only) ---"
-            ./msstore submission status 9P26FDCWV1GC || true
+            ./msstore submission status "${{ vars.STORE_APP_ID }}" || true
           '

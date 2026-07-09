@@ -9,7 +9,7 @@ When you reserve the app name, the Store assigns an identity. Find it at
 Partner Center → your product → **Product management → Product Identity**:
 
 ```
-Package/Identity/Name                     ReluxWorksLLC.PulsarBarycenter
+Package/Identity/Name                     CompanyLLC.YourApp
 Package/Identity/Publisher                CN=60105954-A0D9-4E89-B32D-18AF2F423ABE
 Package/Properties/PublisherDisplayName   Relux Works, LLC
 ```

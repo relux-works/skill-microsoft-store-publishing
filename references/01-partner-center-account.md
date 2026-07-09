@@ -34,5 +34,5 @@ speeds it up; start it early.
 ## Key identifiers you'll need later
 
 Account settings → **Legal info**:
-- **Seller ID** (a number, e.g. `95237190`) — needed by the msstore CLI.
+- **Seller ID** (an 8-digit number) — needed by the msstore CLI.
 - Publisher display name, DUNS, Windows publisher ID.
