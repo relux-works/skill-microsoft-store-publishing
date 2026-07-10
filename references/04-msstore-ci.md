@@ -96,6 +96,12 @@ app. It does **not** resolve the product from the MSIX package identity
   ("not a path or URL").
 - `./msstore submission status <ProductId>` is a cheap read-only probe for
   "where is my certification" — handy in an auth-check workflow.
+  Statuses you will actually see over a submission's life: `CommitStarted`
+  (upload accepted, Partner Center ingesting) -> `PreProcessing` ->
+  `Certification` (Microsoft testing the app on a real Windows VM) ->
+  `Release`/`Publishing` -> `Published`. `CommitFailed` means the package or
+  listing was rejected before certification — read the submission in Partner
+  Center for the reason.
 
 ## Partner Center API flakiness (504s are routine)
 

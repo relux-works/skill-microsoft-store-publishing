@@ -69,6 +69,26 @@ fresh one** — shipping a newer build over an in-cert one is a single command,
 no Partner Center visit. Only a pending FIRST submission (nothing published
 yet) is reused instead of deleted — and only if the CLI created it.
 
+**Release cadence vs the certification clock (learned over four live
+submissions).** A supersede does not "update" the in-flight submission — it
+DELETES it and starts a brand-new certification from zero. Superseding a
+submission that is already deep in `Certification` works flawlessly, but the
+hours it had accumulated are gone. Consequences for a fast beta cadence:
+
+- If you publish every beta, the Store channel is perpetually ~one
+  certification behind and may never catch up while you keep shipping.
+- Let the channels you control (GitHub releases, an in-app updater) run ahead
+  freely; batch Store submits per meaningful milestone, or supersede
+  consciously knowing you reset the clock.
+- Observed certification times for a small utility app: from a few hours to
+  1+ day. Plan around "up to 3 business days" as Microsoft states.
+- The lifecycle you want to see in the publish log:
+  `Deleting existing Submission` -> `Creating new Submission` ->
+  `Submission Committed` -> `CommitStarted` -> `PreProcessing` ->
+  `Certification`. After certification the STORE signs the package with
+  Microsoft's certificate (see 08) — an unsigned CI-packed MSIX is fine for
+  this channel.
+
 **Expect Partner Center 504s** during upload/commit/status-poll — see §04 for
 why a red run can still be a committed submission and how
 `assets/store-submit.yml` verifies via `msstore submission status` before
