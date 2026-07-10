@@ -34,7 +34,20 @@ In Partner Center → your product → **Start submission**:
 2. **Store listings** (per language) — description + **at least one
    screenshot** (min 1366×768). Screenshots are required; the app doesn't have
    to be running to provide them — a faithful high-res mockup of the actual UI
-   is acceptable (render your real strings/layout to a PNG).
+   is acceptable (render your real strings/layout to a PNG). **But mind WHAT
+   they show**: policy **10.1.1.3 Inaccurate Representation** fails
+   certification when the images "only show the product's splash screen
+   and/or the login screen" (live rejection). Show the product IN USE — main
+   window/menu with real content, the core interaction, integrations — and
+   check EVERY language listing: the report names the offending locales. A
+   passed first certification does not grandfather you in; Microsoft re-tests
+   against current policy on any later submission.
+
+   Note the trap for fixes: every CLI `publish` CLONES the previous
+   submission's listing, so bad screenshots re-fail every future submission
+   until replaced. A failed submission returns to an editable state in the
+   Partner Center UI — replace the images there and resubmit the same
+   package; the fixed listing then propagates to all future CLI submissions.
 3. **Properties** — category, etc.
 4. **Age ratings** — the questionnaire.
 5. **Pricing and availability** — Free, markets.
